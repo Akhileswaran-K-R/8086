@@ -1,8 +1,8 @@
 data segment
   msg1 db 0ah,0dh,"Enter the limit: $"
-  msg2 db "Enter the nos",0ah,0dh,"$"
+  msg2 db "Enter the nos: $"
   msg3 db "Enter the search element: $"
-  msg4 db 0ah,0dh,"Found$"
+  msg4 db 0ah,0dh,"Found at $"
   msg5 db 0ah,0dh,"Not Found$"
 
   n dw 0
@@ -23,6 +23,8 @@ data segment
       mov ah,01h
       int 21h
       cmp al,0dh
+      je exit
+      cmp al,20h
       je exit
       mov ah,00h
       sub ax,'0'
@@ -47,18 +49,18 @@ start:
 
   display msg2
   mov cx,n
-  mov si,offset buffer
+  mov si,0
   l1:
-    read [si]
+    read buffer[si]
     add si,2
     loop l1
 
   display msg3
   read search
   mov cx,n
-  mov si,offset buffer
+  mov si,0
   l2:
-    mov ax,[si]
+    mov ax,buffer[si]
     cmp ax,search
     je l3
     add si,2
@@ -67,6 +69,15 @@ start:
   jmp l4
   l3:
     display msg4
+    mov dx,0
+    mov ax,si
+    mov bx,0002h
+    div bx
+    inc ax
+    add al,'0'
+    mov dl,al
+    mov ah,02h
+    int 21h
   l4:
     mov ah,4ch
     int 21h
