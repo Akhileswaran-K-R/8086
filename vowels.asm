@@ -1,9 +1,12 @@
 data segment
   msg1 db 0ah,0dh,"Enter the string: $"
   msg2 db 0ah,0dh,"Entered string: $"
-  msg3 db 0ah,0dh,"No: of words: $"
+  msg3 db 0ah,0dh,"Vowels: $"
+  msg4 db 0ah,0dh,"No: of vowels: $"
 
-  str db 100 dup(?)
+  str1 db 100 dup(?)
+  str2 db 100 dup(?)
+  vowels db "aAeEiIoOuU$"
   count dw 0
 
   display macro msg
@@ -44,28 +47,40 @@ start:
   mov ax,data
   mov ds,ax
   display msg1
-  mov si,offset str
-  mov cx,1
+  mov si,offset str1
+  mov di,offset str2
 
   l1:
     read
     cmp al,0dh
     je exit
-    cmp al,20h
-    jne l2
-    inc cl
+    mov cx,000ah
+    mov bx,offset vowels
+    mov [si],al
+    inc si
     l2:
-      mov [si],al
-      inc si
+      cmp al,[bx]
+      je l3
+      inc bx
+      loop l2
+    jmp l1
+    l3:
+      mov [di],al
+      inc di
+      inc count
       jmp l1
   exit:
     mov al,'$'
     mov [si],al
+    mov [di],al
+
     display msg2
-    display str
+    display str1
     display msg3
-    mov count,cx
+    display str2
+    display msg4
     print count
+
     mov ah,4ch
     int 21h
 code ends

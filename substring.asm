@@ -6,6 +6,7 @@ data segment
 
   str1 db 20,?,20 dup('$')
   str2 db 20,?,20 dup('$')
+  pos dw 0
 
   display macro msg
     lea dx,msg
@@ -17,6 +18,26 @@ data segment
     lea dx,msg
     mov ah,0ah
     int 21h
+  endm
+
+  print macro num
+    local l1,l2
+    mov ax,num
+    mov bx,000ah
+    mov cx,0
+    l1:
+      mov dx,0
+      div bx
+      push dx
+      inc cx
+      cmp ax,0
+      jne l1
+    l2:
+      pop dx
+      add dl,'0'
+      mov ah,02h
+      int 21h
+      loop l2
   endm
 data ends
 
@@ -56,10 +77,8 @@ start:
     display msg3
     pop si
     dec si
-    mov dx,si
-    add dl,'0'
-    mov ah,02h
-    int 21h
+    mov pos,si
+    print pos
     jmp l5
     l4:
       pop si

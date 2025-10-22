@@ -8,6 +8,7 @@ data segment
   n dw 0
   search dw 0
   temp dw 0
+  pos dw 0
   buffer dw 20 dup(0)
 
   display macro msg
@@ -36,6 +37,26 @@ data segment
       jmp l1
     exit:
       nop
+  endm
+
+  print macro num
+    local l1,l2
+    mov ax,num
+    mov bx,000ah
+    mov cx,0
+    l1:
+      mov dx,0
+      div bx
+      push dx
+      inc cx
+      cmp ax,0
+      jne l1
+    l2:
+      pop dx
+      add dl,'0'
+      mov ah,02h
+      int 21h
+      loop l2
   endm
 data ends
 
@@ -74,10 +95,8 @@ start:
     mov bx,0002h
     div bx
     inc ax
-    add al,'0'
-    mov dl,al
-    mov ah,02h
-    int 21h
+    mov pos,ax
+    print pos
   l4:
     mov ah,4ch
     int 21h
